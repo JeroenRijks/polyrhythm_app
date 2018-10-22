@@ -1,0 +1,30 @@
+{% extends 'index.html' %}
+
+{% block 'pageheader' %}
+{% endblock %}
+
+{% block 'contents' %}
+<h1> Polyrhythms </h1>
+
+<table class="table">
+    <thead>
+        <tr>
+          <th scope="col">Polyrhythm</th>
+          <th scope="col">Description</th>
+          <th scope="col">Timings</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for polyrhythm in polyrhythms %}
+
+            <tr>
+                <td>{{polyrhythm.name}}</td>
+                <td>{{polyrhythm.description}}</td>
+                <td>{{polyrhythm.rhythm1.timing}} over {{polyrhythm.rhythm2.timing}} </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}

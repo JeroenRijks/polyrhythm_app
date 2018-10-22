@@ -1,0 +1,16 @@
+{% extends 'index.html' %}
+
+{% block 'contents' %}
+
+Make or edit your tags.
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form }}
+
+    <input value='Submit' type="submit"\>
+</form>
+
+
+{% endblock %}
