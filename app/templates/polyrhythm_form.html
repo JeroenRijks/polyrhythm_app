@@ -6,12 +6,26 @@ Make or edit your tags.
 
 <form method="post">
     {% csrf_token %}
+    <!--{% if polyrhythm %}-->
+        <!--<h4>{{polyrhythm.name}}</h4>-->
+    <!--{% endif %}-->
 
-    <!--Manual form creation in html-->
-    <!--<label for="name">Polyrhythm name: </label>-->
-    <!--<input id="name" type="text" name="name" maxlength="100" />-->
+    <h5>Polyrhythm</h5>
+    {{ poly_form }}
+    <br>
 
-    {{ form }}
+
+    <h5>Rhythm 1</h5>
+    {{ rhythm1_form }}
+    <br>
+    {{ rhythm1_beats_formset }}
+
+
+    <h5>Rhythm 2</h5>
+    {{ rhythm2_form }}
+    <br>
+    {{ rhythm2_beats_formset }}
+
 
     <input value='Submit' type="submit">
 </form>

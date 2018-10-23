@@ -1,19 +1,20 @@
-# from django.forms import Form, ModelForm, formset_factory, IntegerField, CharField
-from django import forms
-from app.models import Polyrhythm, Rhythm, Sound
+from django.forms import ModelForm, inlineformset_factory
+from app.models import Polyrhythm, Rhythm, Sound, Beatplay
 
 
-class PolyrhythmForm(forms.ModelForm):
+class PolyrhythmForm(ModelForm):
 
     class Meta:
         model = Polyrhythm
-        fields = ['name', 'description', 'rhythm1', 'rhythm2']
+        fields = ['name', 'description']
 
 
-# class RhythmForm(forms.ModelForm):
-#
-#     class Meta:
-#         model = Rhythm
-#         fields = ['name']
+class RhythmForm(ModelForm):
 
-# RhythmFormSet = formset_factory(RhythmForm)
+    class Meta:
+        model = Rhythm
+        fields = ['name']
+
+
+# RhythmFormSet = inlineformset_factory(Polyrhythm, Rhythm, fields=('name',))
+BeatplayFormSet = inlineformset_factory(Rhythm, Beatplay, fields=('order',))
