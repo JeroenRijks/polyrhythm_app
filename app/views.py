@@ -13,16 +13,13 @@ class PolyrhythmList(View):
         return render(request, 'polyrhythm_list.html', {'polyrhythms': polyrhythms})
 
 
-class PolyrhythmForm(View):
+class PolyrhythmEdit(View):
     def get(self, request):
-        blob = Polyrhythm.objects.get(id=1)
-        form_class = PolyrhythmForm(instance=blob)
-        print(form_class)
-        return render(request, 'polyrhythm_form.html', {'form': form_class})
+        poly_form = PolyrhythmForm()
+        return render(request, 'polyrhythm_form.html', {'poly_form': poly_form})
 
     def post(self, request):
-        blob = None
-        form_class = PolyrhythmForm(request.POST, instance=blob)
-        if form_class.is_valid():
-            form_class.save()
+        poly_form = PolyrhythmForm(request.POST)
+        if poly_form.is_valid():
+            pass
         return redirect('app:polyrhythm_list')
