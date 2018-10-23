@@ -21,13 +21,15 @@ class PolyrhythmEdit(View):
         rhythm1_beats_formset = BeatplayFormSet(instance=poly_object.rhythm1)
         rhythm2_form = RhythmForm(instance=poly_object.rhythm2)
         rhythm2_beats_formset = BeatplayFormSet(instance=poly_object.rhythm2)
-
         return render(request, 'polyrhythm_form.html', {'poly_form': poly_form,
                                                         'rhythm1_form': rhythm1_form,
                                                         'rhythm1_beats_formset': rhythm1_beats_formset,
                                                         'rhythm2_form': rhythm2_form,
                                                         'rhythm2_beats_formset': rhythm2_beats_formset,
                                                         })
+
+
+
 
     def post(self, request):
         poly_form = PolyrhythmForm(request.POST)
