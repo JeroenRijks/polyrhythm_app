@@ -16,5 +16,10 @@ class RhythmForm(ModelForm):
         fields = ['name']
 
 
-# RhythmFormSet = inlineformset_factory(Polyrhythm, Rhythm, fields=('name',))
-BeatplayFormSet = inlineformset_factory(Rhythm, Beatplay, fields=('order',))
+class BeatplayForm(ModelForm):
+    class Meta:
+        model = Beatplay
+        fields = ['sounds']
+
+
+BeatplayFormSet = inlineformset_factory(Rhythm, Beatplay, form=BeatplayForm, extra=0)
