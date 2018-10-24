@@ -18,7 +18,7 @@
         {% for polyrhythm in polyrhythms %}
 
             <tr>
-                <td>{{polyrhythm.name}}</td>
+                <td> <a href="{% url 'polyrhythm_edit' poly_id=polyrhythm.id %}">{{polyrhythm.poly_name}}</a></td>
                 <td>{{polyrhythm.description}}</td>
                 <td>{{polyrhythm.rhythm1.timing}} over {{polyrhythm.rhythm2.timing}} </td>
             </tr>

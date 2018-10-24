@@ -23,13 +23,13 @@ class Rhythm(models.Model):
 
 
 class Polyrhythm(models.Model):
-    name = models.CharField(max_length=20)
+    poly_name = models.CharField(max_length=20)
     description = models.CharField(max_length=200)
     rhythm1 = models.ForeignKey(Rhythm, related_name='rhythm1', default=None, null=True)
     rhythm2 = models.ForeignKey(Rhythm, related_name='rhythm2', default=None, null=True)
 
     def __str__(self):
-        return self.name
+        return self.poly_name
 
 
 class Beatplay(models.Model):
@@ -38,4 +38,4 @@ class Beatplay(models.Model):
     related_rhythm = models.ForeignKey(Rhythm, related_name='beatplays')
 
     def __str__(self):
-        return self.name
+        return self.order
