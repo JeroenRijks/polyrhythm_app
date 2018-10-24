@@ -19,14 +19,7 @@ class RhythmForm(ModelForm):
 class BeatplayForm(ModelForm):
     class Meta:
         model = Beatplay
-        fields = ['sounds']
-
-# class BaseBeatplayFormSet(BaseInlineFormSet):
-#
-#     def add_fields(self, form, index):
-#         super(BaseBeatplayFormSet, self).add_fields(form, index)
-#         # form.nested line not needed since Beatplay is the lowest form
-
+        fields = ['sounds','order','related_rhythm']
 
 BeatplayFormSet = inlineformset_factory(Rhythm,
                                         Beatplay,
