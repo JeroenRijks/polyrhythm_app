@@ -22,4 +22,7 @@ class BeatplayForm(ModelForm):
         fields = ['sounds']
 
 
-BeatplayFormSet = inlineformset_factory(Rhythm, Beatplay, form=BeatplayForm, extra=0)
+BeatplayFormSet = inlineformset_factory(Rhythm,
+                                        Beatplay,
+                                        form=BeatplayForm,
+                                        extra=0)
