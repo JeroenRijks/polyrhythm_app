@@ -107,49 +107,23 @@ class PolyrhythmDisplay(View):
         for a in range(0, poly_length):
             print("POLYBEAT___________next beat in polyrhythm is", (a+1))
             which_sounds = ""
+
             # for each rhythm
             for b in range(0, 2):
                 rhythm = rhythms[b]
                 print("RHYTHM_______now in rhythm ", rhythm.rhythm_name)
-                # find which beat it is
                 where_in_rhythm =  (a % rhythm.timing) + 1
 
-                # Get correct beatplay
                 beatplay = Beatplay.objects.filter(related_rhythm = rhythm).get(order=where_in_rhythm)
                 print("we're in beat ", where_in_rhythm, " of rhythm ", rhythm.rhythm_name)
                 print("the beatplay ID is ", beatplay.id)
                 sounds = Sound.objects.filter(m2m_sound_beatplay__id=beatplay.id)
-                # for each sound belonging to the beat
                 for c in range(0, sounds.count()):
                     which_sounds = which_sounds + sounds[c].abbreviation + ", "
                     print("whichsounds is now", which_sounds)
 
-            # fix duplication
-
+            # TODO fix duplication
             poly_array.append([a+1, which_sounds])
-
-
         return render(request, 'polyrhythm_display.html', {'poly': poly,
                                                            'poly_array': poly_array
                                                            })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
