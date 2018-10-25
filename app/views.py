@@ -99,62 +99,40 @@ class PolyrhythmDisplay(View):
         rhythm2 = poly.rhythm2
 
         rhythms = [rhythm1, rhythm2]
+        print("____rhythms[0] name is ", rhythms[0])
+        print("____rhythms[1] name is ", rhythms[1])
         poly_length = rhythm1.timing * rhythm2.timing
 
         # for each beat in polyrhythm
         for a in range(0, poly_length):
+            print("POLYBEAT___________next beat in polyrhythm is", (a+1))
             which_sounds = ""
             # for each rhythm
-            for b in range(0, 1):
+            for b in range(0, 2):
                 rhythm = rhythms[b]
-
+                print("RHYTHM_______now in rhythm ", rhythm.rhythm_name)
                 # find which beat it is
                 where_in_rhythm =  (a % rhythm.timing) + 1
 
                 # Get correct beatplay
                 beatplay = Beatplay.objects.filter(related_rhythm = rhythm).get(order=where_in_rhythm)
-
+                print("we're in beat ", where_in_rhythm, " of rhythm ", rhythm.rhythm_name)
+                print("the beatplay ID is ", beatplay.id)
                 sounds = Sound.objects.filter(m2m_sound_beatplay__id=beatplay.id)
-
                 # for each sound belonging to the beat
                 for c in range(0, sounds.count()):
                     which_sounds = which_sounds + sounds[c].abbreviation + ", "
+                    print("whichsounds is now", which_sounds)
 
             # fix duplication
 
             poly_array.append([a+1, which_sounds])
 
-        # test_find_1st = Beatplay.objects.filter(related_rhythm=rhythm1).filter(order=1).order_by('order')
-        # print("r1's 1st beatplay")
-        # print(test_find_1st)
-
-
-
-
-
-
-        # # for each rhythm
-        # for i in range (0, 1):
-        #     rhythm = rhythms[i]
-        #     beatplays = Beatplay.objects.filter(related_rhythm = rhythm).order_by('order')
-        #
-        #     # for each beat in rhythm 1
-        #     for j in range(0, rhythm.timing):
-        #         which_sounds = ""
-        #         beatplay = beatplays[j]
-        #         sounds = Sound.objects.filter(m2m_sound_beatplay__id=beatplay.id)
-        #
-        #         # for each sound in a beat
-        #         for k in range(0, sounds.count()):
-        #             which_sounds = which_sounds + sounds[k].abbreviation + ", "
-        #         beat_array = [j+1, which_sounds]
-        #         rhythm1_array.append(beat_array)
 
         return render(request, 'polyrhythm_display.html', {'poly': poly,
-                                                           'rhythm1': rhythm1,
-                                                           'rhythm2': rhythm2,
                                                            'poly_array': poly_array
                                                            })
+
 
 
 
