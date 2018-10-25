@@ -1,0 +1,59 @@
+{% extends 'index.html' %}
+
+{% block 'contents' %}
+
+<h2>poly name: {{poly.poly_name}}</h2>
+<a href="{% url 'polyrhythm_display' poly_id=poly.id %}"><h4>Edit this polyrhythm</h4></a>
+
+
+<table class="table">
+    <thead>
+        <tr>
+          <th scope="col">Beat number</th>
+          <th scope="col">Play</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r1_beat in r1_beats %}
+            <tr>
+                <td> {{r1_beat.0}}</td>
+                <td> {{r1_beat.1}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--<br>-->
+<!--<h4>r1</h4>-->
+<!--name = {{rhythm1.name}}-->
+<!--<br>-->
+<!--timing = {{rhythm1.timing}}-->
+<!--<br>-->
+<!--<h4>r2</h4>-->
+<!--name = {{rhythm2.name}}-->
+<!--<br>-->
+<!--timing = {{rhythm2.timing}}-->
+<!--<br>-->
+<!--<h4>The smallest repeatable block has {{poly_length}} beats</h4>-->
+{% endblock %}

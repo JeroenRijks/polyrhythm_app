@@ -13,7 +13,7 @@ class RhythmForm(ModelForm):
 
     class Meta:
         model = Rhythm
-        fields = ['name']
+        fields = ['rhythm_name']
 
 
 class BeatplayForm(ModelForm):

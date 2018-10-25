@@ -1,6 +1,7 @@
 {% extends 'index.html' %}
 
 {% block 'headerscripts' %}
+<!--TODO Find deletebutton function, incorporate in used JS-->
 <!--<script type='text/javascript'>-->
 <!--function updateElementIndex(el, prefix, ndx) {-->
     <!--var id_regex = new RegExp('(' + prefix + '-\\d+)');-->
@@ -63,9 +64,6 @@ Make or edit your tags.
 
 <form method="post">
     {% csrf_token %}
-    <!--{% if polyrhythm %}-->
-        <!--<h4>{{polyrhythm.name}}</h4>-->
-    <!--{% endif %}-->
 
     <h5>Polyrhythm</h5>
     {{ poly_form.as_p }}

@@ -3,14 +3,14 @@ from __future__ import unicode_literals
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from app.models import Polyrhythm, Rhythm
+from app.models import Polyrhythm, Rhythm, Beatplay, Sound
 from app.forms import PolyrhythmForm, RhythmForm, BeatplayFormSet
 
 
 class PolyrhythmList(View):
     def get(self, request):
-        polyrhythms = Polyrhythm.objects.all()
-        return render(request, 'polyrhythm_list.html', {'polyrhythms': polyrhythms})
+        polys = Polyrhythm.objects.all()
+        return render(request, 'polyrhythm_list.html', {'polys': polys})
 
 
 class PolyrhythmEdit(View):
@@ -89,6 +89,38 @@ class PolyrhythmEdit(View):
         return redirect('polyrhythm_list')
 
 
+class PolyrhythmDisplay(View):
+
+    def get(self, request, poly_id):
+        # Instantiate variables - Smallest repeatable loop, Array of beats in loop, poly object, r1 and r2 objects, each beatplay, each sound in a beatplay
+        poly = None
+        rhythm1 = None
+        rhythm2 = None
+        poly_length = None
+        rhythm1_beat = []
+        rhythm2_beat = []
+
+        # Get poly object, then rhythm objects
+        poly = Polyrhythm.objects.get(id = poly_id)
+        rhythm1 = poly.rhythm1
+        rhythm2 = poly.rhythm2
+        poly_length = rhythm1.timing * rhythm2.timing
+
+        # Get all beatplays with related rhythm = rhythm1.id
+        r1_beatplays = Beatplay.objects.filter(related_rhythm = rhythm1).order_by('order')
+        r2_beatplays = Beatplay.objects.filter(related_rhythm = rhythm2).order_by('order')
+
+        # for each beat in rhythm 1
+        for i in range(0, rhythm1.timing):
+            which_sounds = ""
+            the_beatplay = r1_beatplays[i]
+            the_sounds = Sound.objects.filter(m2m_sound_beatplay__id=the_beatplay.id)
+
+            # for each sound in a beat
+            for j in range(0, the_sounds.count()):
+                which_sounds = which_sounds + the_sounds[j].abbreviation + ", "
+            beat_array = [i+1, which_sounds]
+            rhythm1_beat.append(beat_array)
 
 
 
@@ -102,10 +134,11 @@ class PolyrhythmEdit(View):
 
 
 
-
-
-
-
+        return render(request, 'polyrhythm_display.html', {'poly': poly,
+                                                           'rhythm1': rhythm1,
+                                                           'rhythm2': rhythm2,
+                                                           'r1_beats': rhythm1_beat,
+                                                           })
 
 
 
