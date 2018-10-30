@@ -13,19 +13,21 @@ class RhythmForm(ModelForm):
 
     class Meta:
         model = Rhythm
-        fields = ['rhythm_name']
+        fields = ['rhythm_name', 'timing']
 
 
 class BeatplayForm(ModelForm):
+
     class Meta:
         model = Beatplay
-        fields = ['sounds','order','related_rhythm']
+        fields = ['sounds']
 
 Rhythm1BeatplayFormSet = inlineformset_factory(Rhythm,
                                         Beatplay,
                                         form=BeatplayForm,
-                                        extra=2)
+                                        extra=0)
+
 Rhythm2BeatplayFormSet = inlineformset_factory(Rhythm,
                                         Beatplay,
                                         form=BeatplayForm,
-                                        extra=3)
+                                        extra=0)

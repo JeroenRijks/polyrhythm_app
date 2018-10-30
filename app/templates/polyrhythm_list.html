@@ -20,7 +20,7 @@
 
             <tr>
                 <td> <a href="{% url 'polyrhythm_display' poly_id=poly.id %}">{{poly.poly_name}}</a></td>
-                <td> <a href="{% url 'polyrhythm_edit' poly_id=poly.id %}">Edit</a> </td>
+                <td> <a href="{% url 'rhythms_edit' poly_id=poly.id %}">Edit</a> </td>
                 <td>{{poly.description}}</td>
                 <td>{{poly.rhythm1.timing}} over {{poly.rhythm2.timing}} </td>
             </tr>

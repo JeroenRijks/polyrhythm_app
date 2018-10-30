@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+{% block 'contents' %}
+
+Make or edit your tags.
+
+<form method="post">
+    {% csrf_token %}
+
+    <h5>Polyrhythm</h5>
+    {{ poly_form.as_p }}
+    <br>
+
+    <div class="left-form">
+    <h4>Rhythm 1</h4>
+    {{ rhythm1_form.as_p }}
+    </div>
+
+    <div class="right-form">
+    <h4>Rhythm 2</h4>
+    {{ rhythm2_form.as_p }}
+    </div>
+
+    <input value='Submit' type="submit">
+</form>
+
+{% endblock %}
