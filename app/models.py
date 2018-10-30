@@ -36,5 +36,5 @@ class Polyrhythm(models.Model):
 
 class Beatplay(models.Model):
     order = models.IntegerField()
-    sounds = models.ManyToManyField(Sound, related_name='m2m_sound_beatplay')
+    sounds = models.ManyToManyField(Sound, related_name='m2m_sound_beatplay', blank=True)
     related_rhythm = models.ForeignKey(Rhythm, related_name='beatplays')

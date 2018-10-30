@@ -24,4 +24,12 @@ class BeatplayForm(ModelForm):
 BeatplayFormSet = inlineformset_factory(Rhythm,
                                         Beatplay,
                                         form=BeatplayForm,
-                                        extra=0)
+                                        extra=1)
+Rhythm1BeatplayFormSet = inlineformset_factory(Rhythm,
+                                        Beatplay,
+                                        form=BeatplayForm,
+                                        extra=2)
+Rhythm2BeatplayFormSet = inlineformset_factory(Rhythm,
+                                        Beatplay,
+                                        form=BeatplayForm,
+                                        extra=3)

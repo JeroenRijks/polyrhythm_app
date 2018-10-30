@@ -70,14 +70,14 @@ Make or edit your tags.
     <br>
 
     <div class="left-form">
-    <h5>Rhythm 1</h5>
+    <h4>Rhythm 1</h4>
     {{ rhythm1_form.as_p }}
     <br>
         {{ rhythm1_beats_formset.management_form }}
         <div id="form_set_rhythm1">
             {% for form in rhythm1_beats_formset.forms %}
                 <table class='no_error'>
-                    <h4>beat</h4>
+                    <h5>beat</h5>
                     {{ form.as_table }}
                 </table>
             {% endfor %}
@@ -90,49 +90,42 @@ Make or edit your tags.
         </div>
     </div>
 
-    <div class="right-form">
-    <h5>Rhythm 2</h5>
-    {{ rhythm2_form.as_p }}
-    <br>
-        {{ rhythm2_beats_formset.management_form }}
-        <div id="form_set_rhythm2">
-            {% for form in rhythm2_beats_formset.forms %}
-                <table class='no_error'>
-                    <h4>beat</h4>
-                    {{ form.as_table }}
-                </table>
-            {% endfor %}
-        </div>
-        <input type="button" value="Add More" id="add_more_rhythm2">
-        <div id="empty_form_rhythm2" style="display:none">
-            <table class='no_error'>
-                {{ rhythm2_beats_formset.empty_form.as_table }}
-            </table>
-        </div>
-    </div>
+    <!--<div class="right-form">-->
+    <!--<h4>Rhythm 2</h4>-->
+    <!--{{ rhythm2_form.as_p }}-->
+    <!--<br>-->
+        <!--{{ rhythm2_beats_formset.management_form }}-->
+        <!--<div id="form_set_rhythm2">-->
+            <!--{% for form in rhythm2_beats_formset.forms %}-->
+                <!--<table class='no_error'>-->
+                    <!--<h5>beat</h5>-->
+                    <!--{{ form.as_table }}-->
+                <!--</table>-->
+            <!--{% endfor %}-->
+        <!--</div>-->
+        <!--<input type="button" value="Add More" id="add_more_rhythm2">-->
+        <!--<div id="empty_form_rhythm2" style="display:none">-->
+            <!--<table class='no_error'>-->
+                <!--{{ rhythm2_beats_formset.empty_form.as_table }}-->
+            <!--</table>-->
+        <!--</div>-->
+    <!--</div>-->
 
     <input value='Submit' type="submit">
 </form>
 
 
-
-
 <script>
-    // Add more fields to rhythm1 and rhythm2 formsets
-    // TODO Merge these two functions
 
     $('#add_more_rhythm1').click(function() {
         var form_idx = $('#id_form-TOTAL_FORMS').val();
+        console.log($('#id_form-TOTAL_FORMS'));
         $('#form_set_rhythm1').append($('#empty_form_rhythm1').html().replace(/__prefix__/g, form_idx));
         $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
     });
 
-    $('#add_more_rhythm2').click(function() {
-        var form_idx = $('#id_form-TOTAL_FORMS').val();
-        $('#form_set_rhythm2').append($('#empty_form_rhythm2').html().replace(/__prefix__/g, form_idx));
-        $('#id_form-TOTAL_FORMS').val(parseInt(form_idx) + 1);
-    });
-
 </script>
+
+
 
 {% endblock %}
