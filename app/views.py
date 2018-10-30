@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from app.models import Polyrhythm, Rhythm, Beatplay, Sound
-from app.forms import PolyrhythmForm, RhythmForm, BeatplayFormSet, Rhythm1BeatplayFormSet, Rhythm2BeatplayFormSet
+from app.forms import PolyrhythmForm, RhythmForm, Rhythm1BeatplayFormSet, Rhythm2BeatplayFormSet
 
 
 class PolyrhythmList(View):
@@ -46,7 +46,7 @@ class PolyrhythmEdit(View):
             rhythm2 = poly.rhythm2
 
         rhythm1_form = RhythmForm(request.POST, instance=rhythm1)
-        # rhythm2_form = RhythmForm(request.POST, instance=rhythm2)
+        rhythm2_form = RhythmForm(request.POST, instance=rhythm2)
         poly_form = PolyrhythmForm(request.POST, instance=poly)
 
         # CHECK IF ALL THINGS ARE VALID. IF SO, THEN...
@@ -59,16 +59,16 @@ class PolyrhythmEdit(View):
             rhythm1_beats_formset.save()
 
         # RHYTHM 2 SAVING
-        # saved_rhythm2_form = rhythm2_form.save(commit=False)
-        # rhythm2_beats_formset = Rhythm2BeatplayFormSet(request.POST, instance=saved_rhythm2_form, prefix='r2_formset')
-        # if rhythm2_beats_formset.is_valid():
-        #     saved_rhythm2_form.save()
-        #     rhythm2_beats_formset.save()
+        saved_rhythm2_form = rhythm2_form.save(commit=False)
+        rhythm2_beats_formset = Rhythm2BeatplayFormSet(request.POST, instance=saved_rhythm2_form, prefix='r2_formset')
+        if rhythm2_beats_formset.is_valid():
+            saved_rhythm2_form.save()
+            rhythm2_beats_formset.save()
 
         # POLYRHYTHM SAVING
         pre_commit_poly_form = poly_form.save(commit=False)
         pre_commit_poly_form.rhythm1 = saved_rhythm1_form
-        # pre_commit_poly_form.rhythm2 = saved_rhythm2_form
+        pre_commit_poly_form.rhythm2 = saved_rhythm2_form
         pre_commit_poly_form.save()
 
         return redirect('polyrhythm_list')

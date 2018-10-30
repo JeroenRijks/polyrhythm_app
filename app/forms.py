@@ -21,10 +21,6 @@ class BeatplayForm(ModelForm):
         model = Beatplay
         fields = ['sounds','order','related_rhythm']
 
-BeatplayFormSet = inlineformset_factory(Rhythm,
-                                        Beatplay,
-                                        form=BeatplayForm,
-                                        extra=1)
 Rhythm1BeatplayFormSet = inlineformset_factory(Rhythm,
                                         Beatplay,
                                         form=BeatplayForm,
