@@ -124,21 +124,17 @@ class PolyrhythmDisplay(View):
         poly_length = rhythm1.timing * rhythm2.timing
 
         # for each beat in polyrhythm
-        for a in range(0, poly_length):
-            which_sounds = ""
-
-            # for each rhythm
-            for b in range(0, 2):
-                rhythm = rhythms[b]
-                where_in_rhythm =  (a % rhythm.timing) + 1
-
+        for beat in range(0, poly_length):
+            which_sounds = []
+            for rhythm in rhythms:
+                where_in_rhythm =  (beat % rhythm.timing) + 1
                 beatplay = Beatplay.objects.filter(related_rhythm = rhythm).get(order=where_in_rhythm)
                 sounds = Sound.objects.filter(m2m_sound_beatplay__id=beatplay.id)
-                for c in range(0, sounds.count()):
-                    which_sounds = which_sounds + sounds[c].abbreviation + ", "
-
-            # TODO fix duplication
-            poly_array.append([a+1, which_sounds])
+                for sound in sounds:
+                    if sound not in which_sounds:
+                        which_sounds.append(sound)
+            poly_array.append([beat+1, which_sounds])
         return render(request, 'polyrhythm_display.html', {'poly': poly,
                                                            'poly_array': poly_array
                                                            })
+

@@ -17,7 +17,12 @@
         {% for poly_beat in poly_array %}
             <tr>
                 <td> {{poly_beat.0}}</td>
-                <td> {{poly_beat.1}}</td>
+                <td> {% for sound in poly_beat.1 %}
+                    {{sound.abbreviation}}
+                    {% if not forloop.last %} , {% endif %}
+                    {% empty %} *
+                {% endfor %}
+                </td>
             </tr>
         {% endfor %}
     </tbody>
