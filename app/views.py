@@ -14,65 +14,75 @@ class PolyrhythmList(View):
 
 
 class RhythmsEdit(View):
+    poly = None
+    rhythm1 = None
+    rhythm2 = None
+    poly_form = None
+    rhythm1_form = None
+    rhythm2_form = None
+    template = 'rhythms_form.html'
+
     def get(self, request, poly_id=None):
-        poly = None
-        rhythm1 = None
-        rhythm2 = None
         if poly_id:
-            poly = Polyrhythm.objects.get(id=poly_id)
-            rhythm1 = poly.rhythm1
-            rhythm2 = poly.rhythm2
-
-        poly_form = PolyrhythmForm(instance=poly)
-        rhythm1_form = RhythmForm(instance=rhythm1, prefix='r1')
-        rhythm2_form = RhythmForm(instance=rhythm2, prefix='r2')
-        return render(request, 'rhythms_form.html', {'poly_form': poly_form,
-                                                        'rhythm1_form': rhythm1_form,
-                                                        'rhythm2_form': rhythm2_form,
-                                                        })
-
+            self.assign_values(poly_id)
+        self.load_forms()
+        return render(request, self.template, {'poly_form': self.poly_form,
+                                                'rhythm1_form': self.rhythm1_form,
+                                                'rhythm2_form': self.rhythm2_form,
+                                                })
 
     def post(self, request, poly_id=None):
-        poly = None
-        rhythm1 = None
-        rhythm2 = None
         if poly_id:
-            poly = Polyrhythm.objects.get(id=poly_id)
-            rhythm1 = poly.rhythm1
-            rhythm2 = poly.rhythm2
+            self.assign_values(poly_id)
+        self.get_posted_forms(request)
+        # TODO add validation function
+        self.save_forms()
+        self.create_beatplays()
+        return redirect('beats_edit', poly_id = self.poly_id)
 
-        rhythm1_form = RhythmForm(request.POST, instance=rhythm1, prefix='r1')
-        rhythm2_form = RhythmForm(request.POST, instance=rhythm2, prefix='r2')
-        poly_form = PolyrhythmForm(request.POST, instance=poly)
-        # CHECK IF ALL THINGS ARE VALID. IF SO, THEN...
+    def assign_values(self, poly_id):
+        self.poly = Polyrhythm.objects.get(id=poly_id)
+        self.rhythm1 = self.poly.rhythm1
+        self.rhythm2 = self.poly.rhythm2
 
-        # RHYTHM 1 SAVING
-        saved_rhythm1_form = rhythm1_form.save()
+    def load_forms(self):
+        self.poly_form = PolyrhythmForm(instance=self.poly)
+        self.rhythm1_form = RhythmForm(instance=self.rhythm1, prefix='r1')
+        self.rhythm2_form = RhythmForm(instance=self.rhythm2, prefix='r2')
 
-        # RHYTHM 2 SAVING
-        saved_rhythm2_form = rhythm2_form.save()
+    def get_posted_forms(self, request):
+        self.rhythm1_form = RhythmForm(request.POST, instance=self.rhythm1, prefix='r1')
+        self.rhythm2_form = RhythmForm(request.POST, instance=self.rhythm2, prefix='r2')
+        self.poly_form = PolyrhythmForm(request.POST, instance=self.poly)
 
-        # POLYRHYTHM SAVING
-        pre_commit_poly_form = poly_form.save(commit=False)
-        pre_commit_poly_form.rhythm1 = saved_rhythm1_form
-        pre_commit_poly_form.rhythm2 = saved_rhythm2_form
-        pre_commit_poly_form.save()
-        print("__________poly id is ", pre_commit_poly_form.id)
+    def save_forms(self):
+        self.save_rhythm_forms()
+        self.save_polyrhythm_form()
 
-        # CREATE timing formset forms
-        for i in xrange(0, saved_rhythm1_form.timing):
-            r1_beat= Beatplay()
-            r1_beat.order = i+1
-            r1_beat.related_rhythm = saved_rhythm1_form
-            r1_beat.save()
+    def create_beatplays(self):
+        rhythm_forms = [self.saved_rhythm1_form, self.saved_rhythm2_form]
+        for rhythm in rhythm_forms:
+            for beat in xrange(0, rhythm.timing):
+                beatplay= Beatplay()
+                beatplay.order = beat+1
+                beatplay.related_rhythm = self.saved_rhythm1_form
+                beatplay.save()
 
-        for i in xrange(0, saved_rhythm2_form.timing):
-            r2_beat= Beatplay()
-            r2_beat.order = i+1
-            r2_beat.related_rhythm = saved_rhythm2_form
-            r2_beat.save()
-        return redirect('beats_edit', poly_id = pre_commit_poly_form.id)
-        # return redirect('polyrhythm_list')
+    def save_rhythm_forms(self):
+        self.saved_rhythm1_form = self.rhythm1_form.save()
+        self.saved_rhythm2_form = self.rhythm2_form.save()
+
+    def save_polyrhythm_form(self):
+        prepared_poly_form = self.attach_rhythms_to_polyrhythm()
+        prepared_poly_form.save()
+        self.poly_id = prepared_poly_form.id
+
+    def attach_rhythms_to_polyrhythm(self):
+        pre_commit_poly_form = self.poly_form.save(commit=False)
+        pre_commit_poly_form.rhythm1 = self.saved_rhythm1_form
+        pre_commit_poly_form.rhythm2 = self.saved_rhythm2_form
+        return pre_commit_poly_form
+
 
 
 class BeatsEdit(View):
