@@ -20,16 +20,16 @@ class RhythmsEdit(View):
     poly_form = None
     rhythm1_form = None
     rhythm2_form = None
-    template = 'rhythms_form.html'
 
     def get(self, request, poly_id=None):
+        template = 'rhythms_form.html'
         if poly_id:
             self.assign_values(poly_id)
         self.load_forms()
-        return render(request, self.template, {'poly_form': self.poly_form,
-                                                'rhythm1_form': self.rhythm1_form,
-                                                'rhythm2_form': self.rhythm2_form,
-                                                })
+        return render(request, template, {'poly_form': self.poly_form,
+                                               'rhythm1_form': self.rhythm1_form,
+                                               'rhythm2_form': self.rhythm2_form,
+                                               })
 
     def post(self, request, poly_id=None):
         if poly_id:
@@ -86,38 +86,44 @@ class RhythmsEdit(View):
 
 
 class BeatsEdit(View):
+    poly = None
+    rhythm1 = None
+    rhythm2 = None
+    rhythm1_beats_formset = None
+    rhythm2_beats_formset = None
+
+    def assign_values(self, poly_id):
+        self.poly = Polyrhythm.objects.get(id=poly_id)
+        self.rhythm1 = self.poly.rhythm1
+        self.rhythm2 = self.poly.rhythm2
+
+    def load_formsets(self):
+        self.rhythm1_beats_formset = Rhythm1BeatplayFormSet(instance=self.rhythm1, prefix='r1')
+        self.rhythm2_beats_formset = Rhythm2BeatplayFormSet(instance=self.rhythm2, prefix='r2')
+
     def get(self, request, poly_id=None):
-        poly = None
-        rhythm1 = None
-        rhythm2 = None
         if poly_id:
-            poly = Polyrhythm.objects.get(id=poly_id)
-            rhythm1 = poly.rhythm1
-            rhythm2 = poly.rhythm2
+            self.assign_values(poly_id)
+        self.load_formsets()
+        return render(request, 'beatplay_formsets.html', {'rhythm1_beats_formset': self.rhythm1_beats_formset,
+                                                          'rhythm2_beats_formset': self.rhythm2_beats_formset,
+                                                          })
 
-        rhythm1_beats_formset = Rhythm1BeatplayFormSet(instance=rhythm1, prefix='r1')
-        rhythm2_beats_formset = Rhythm2BeatplayFormSet(instance=rhythm2, prefix='r2')
+    def get_posted_forms(self, request):
+        self.rhythm1_beats_formset = Rhythm1BeatplayFormSet(request.POST, instance=self.rhythm1, prefix='r1')
+        self.rhythm2_beats_formset = Rhythm2BeatplayFormSet(request.POST, instance=self.rhythm2, prefix='r2')
 
-        return render(request, 'beatplay_formsets.html', {'rhythm1_beats_formset': rhythm1_beats_formset,
-                                                     'rhythm2_beats_formset': rhythm2_beats_formset,
-                                                     })
+    def save_valid_forms(self):
+        formsets = [self.rhythm1_beats_formset, self.rhythm2_beats_formset]
+        for formset in formsets:
+            if formset.is_valid():
+                formset.save()
 
-    def post(self, request, poly_id=None):
-        poly = None
-        rhythm1 = None
-        rhythm2 = None
+    def post(self, request, poly_id):
         if poly_id:
-            poly = Polyrhythm.objects.get(id=poly_id)
-            rhythm1 = poly.rhythm1
-            rhythm2 = poly.rhythm2
-
-        rhythm1_beats_formset = Rhythm1BeatplayFormSet(request.POST, instance=rhythm1, prefix='r1')
-        if rhythm1_beats_formset.is_valid():
-            rhythm1_beats_formset.save()
-
-        # RHYTHM 2 SAVING
-        rhythm2_beats_formset = Rhythm2BeatplayFormSet(request.POST, instance=rhythm2, prefix='r2')
-        rhythm2_beats_formset.save()
+            self.assign_values(poly_id)
+        self.get_posted_forms(request)
+        self.save_valid_forms()
         return redirect('polyrhythm_list')
 
 
