@@ -12,26 +12,27 @@ class PolyrhythmList(View):
         polys = Polyrhythm.objects.all()
         return render(request, 'polyrhythm_list.html', {'polys': polys})
 
-class FormsView(View):
+
+class VariableAssignmentView(View):
     poly = None
     rhythm1 = None
     rhythm2 = None
-    print("In parent view")
 
     def assign_values(self, poly_id=None):
-        if poly_id:
-            self.poly = Polyrhythm.objects.get(id=poly_id)
-            self.rhythm1 = self.poly.rhythm1
-            self.rhythm2 = self.poly.rhythm2
+        self.poly = Polyrhythm.objects.get(id=poly_id)
+        self.rhythm1 = self.poly.rhythm1
+        self.rhythm2 = self.poly.rhythm2
 
-class RhythmsEdit(FormsView):
+
+class RhythmsEdit(VariableAssignmentView):
     poly_form = None
     rhythm1_form = None
     rhythm2_form = None
 
     def get(self, request, poly_id=None):
         template = 'rhythms_form.html'
-        self.assign_values(poly_id)
+        if poly_id:
+            self.assign_values(poly_id)
         self.load_forms()
         return render(request, template, {'poly_form': self.poly_form,
                                           'rhythm1_form': self.rhythm1_form,
@@ -88,19 +89,21 @@ class RhythmsEdit(FormsView):
         return pre_commit_poly_form
 
 
-class BeatsEdit(FormsView):
+class BeatsEdit(VariableAssignmentView):
     rhythm1_beats_formset = None
     rhythm2_beats_formset = None
 
     def get(self, request, poly_id=None):
-        self.assign_values(poly_id)
+        if poly_id:
+            self.assign_values(poly_id)
         self.load_formsets()
         return render(request, 'beatplay_formsets.html', {'rhythm1_beats_formset': self.rhythm1_beats_formset,
                                                           'rhythm2_beats_formset': self.rhythm2_beats_formset,
                                                           })
 
     def post(self, request, poly_id):
-        self.assign_values(poly_id)
+        if poly_id:
+            self.assign_values(poly_id)
         self.get_posted_formsets(request)
         self.save_valid_formsets()
         return redirect('polyrhythm_list')
@@ -120,30 +123,38 @@ class BeatsEdit(FormsView):
                 formset.save()
 
 
-class PolyrhythmDisplay(View):
+class PolyrhythmDisplay(VariableAssignmentView):
+    poly_array = []
+
+    def assign_values(self, poly_id=None):
+        super(PolyrhythmDisplay, self).assign_values(poly_id)
+        self.rhythms = [self.rhythm1, self.rhythm2]
 
     def get(self, request, poly_id):
-        poly_array = []
+        self.assign_values(poly_id)
+        poly_length = self.rhythm1.timing * self.rhythm2.timing
 
-        poly = Polyrhythm.objects.get(id = poly_id)
-        rhythm1 = poly.rhythm1
-        rhythm2 = poly.rhythm2
-
-        rhythms = [rhythm1, rhythm2]
-        poly_length = rhythm1.timing * rhythm2.timing
-
-        # for each beat in polyrhythm
         for beat in range(0, poly_length):
-            which_sounds = []
-            for rhythm in rhythms:
-                where_in_rhythm =  (beat % rhythm.timing) + 1
-                beatplay = Beatplay.objects.filter(related_rhythm = rhythm).get(order=where_in_rhythm)
-                sounds = Sound.objects.filter(m2m_sound_beatplay__id=beatplay.id)
-                for sound in sounds:
-                    if sound not in which_sounds:
-                        which_sounds.append(sound)
-            poly_array.append([beat+1, which_sounds])
-        return render(request, 'polyrhythm_display.html', {'poly': poly,
-                                                           'poly_array': poly_array
+            self.add_sounds_to_current_beat(beat)
+        return render(request, 'polyrhythm_display.html', {'poly': self.poly,
+                                                           'poly_array': self.poly_array
                                                            })
+
+    def add_sounds_to_current_beat(self, beat):
+        self.current_beat_sounds = []
+        for rhythm in self.rhythms:
+            self.add_rhythm_sounds_to_beat(beat, rhythm)
+        self.poly_array.append([beat + 1, self.current_beat_sounds])
+
+    def add_rhythm_sounds_to_beat(self, beat, rhythm):
+        where_in_rhythm = (beat % rhythm.timing) + 1
+        current_beatplay = Beatplay.objects.filter(related_rhythm=rhythm).get(order=where_in_rhythm)
+        sounds_in_beatplay = Sound.objects.filter(m2m_sound_beatplay__id=current_beatplay.id)
+        for sound in sounds_in_beatplay:
+            self.add_non_duplicate_sounds_to_beat(sound)
+
+    def add_non_duplicate_sounds_to_beat(self, sound):
+            if sound not in self.current_beat_sounds:
+                self.current_beat_sounds.append(sound)
+
 
