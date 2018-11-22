@@ -6,7 +6,7 @@ Make or edit your tags.
 <form method="post">
 {% csrf_token %}
 
-<div class="left-form">
+<div class="col-1">
 <h4>Rhythm 1</h4>
 {{ rhythm1_beats_formset.management_form }}
 <div id="form_set_rhythm1">
@@ -19,7 +19,7 @@ Make or edit your tags.
 </div>
 </div>
 
-<div class="right-form">
+<div class="col-7">
 <h4>Rhythm 2</h4>
 {{ rhythm2_beats_formset.management_form }}
 <div id="form_set_rhythm2">
