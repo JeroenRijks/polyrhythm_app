@@ -18,12 +18,9 @@ class Rhythm(models.Model):
     rhythm_name = models.CharField(max_length=20)
     timing = models.IntegerField(default=1)
 
-    # @property
-    # def timing(self):
-    #     return self.beatplays.all().count()
-
     def __str__(self):
         return self.rhythm_name
+
 
 class Polyrhythm(models.Model):
     poly_name = models.CharField(max_length=20)
