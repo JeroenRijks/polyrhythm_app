@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
+from django.core.exceptions import ObjectDoesNotExist
 from app.models import Polyrhythm, Rhythm, Beatplay, Sound
 from app.forms import PolyrhythmForm, RhythmForm, BeatplayForm, Rhythm1BeatplayFormSet, Rhythm2BeatplayFormSet
 
@@ -26,8 +26,14 @@ class VariableAssignmentView(View):
 
 class RhythmsEdit(VariableAssignmentView):
     poly_form = None
+    poly_id = None
     rhythm1_form = None
     rhythm2_form = None
+    saved_rhythm1_form = None
+    saved_rhythm2_form = None
+    original_timings = [0, 0]
+    updated_timings = [0, 0]
+    deltas = [0, 0]
 
     def get(self, request, poly_id=None):
         template = 'rhythms_form.html'
@@ -39,37 +45,106 @@ class RhythmsEdit(VariableAssignmentView):
                                           'rhythm2_form': self.rhythm2_form,
                                           })
 
-    def post(self, request, poly_id=None):
-        if poly_id:
-            self.assign_values(poly_id)
-        self.get_posted_forms(request)
-        # TODO add validation function
-        self.save_forms()
-        self.create_beatplays()
-        return redirect('beats_edit', poly_id = self.poly_id)
-
     def load_forms(self):
         self.poly_form = PolyrhythmForm(instance=self.poly)
         self.rhythm1_form = RhythmForm(instance=self.rhythm1, prefix='r1')
         self.rhythm2_form = RhythmForm(instance=self.rhythm2, prefix='r2')
+
+    # def post(self, request, poly_id=None):
+    #     if poly_id:
+    #         self.assign_values(poly_id)
+    #         self.get_original_timings()
+    #         # self.get_deltas(request)
+    #         self.update_beatplays()
+    #         self.get_posted_forms(request)
+    #         self.save_forms()
+    #         return redirect('rhythms_edit', poly_id=poly_id)
+    #     else:
+    #         self.get_posted_forms(request)
+    #         self.save_forms()
+    #         # self.create_beatplays()  # TODO change to update_beatplays, pass variables into create/delete beatplays
+    #         return redirect('beats_edit', poly_id=poly_id)
+
+    def post(self, request, poly_id=None):
+        if poly_id:
+            self.assign_values(poly_id)
+            self.get_original_timings()
+        self.get_posted_forms(request)
+        deltas = self.get_deltas()
+        self.update_beatplays(deltas)
+        self.save_forms()
+        return redirect('beats_edit', poly_id=poly_id)
+
+    def get_original_timings(self):
+        self.original_timings[0] = self.rhythm1.timing
+        self.original_timings[1] = self.rhythm2.timing
 
     def get_posted_forms(self, request):
         self.rhythm1_form = RhythmForm(request.POST, instance=self.rhythm1, prefix='r1')
         self.rhythm2_form = RhythmForm(request.POST, instance=self.rhythm2, prefix='r2')
         self.poly_form = PolyrhythmForm(request.POST, instance=self.poly)
 
+    def get_deltas(self):
+        self.rhythm1_form.is_valid()
+        self.updated_timings[0] = self.rhythm1_form.cleaned_data['timing']
+        self.rhythm2_form.is_valid()
+        self.updated_timings[1] = self.rhythm2_form.cleaned_data['timing']
+        deltas = [a - b for a, b in zip(self.updated_timings, self.original_timings)]
+        print("deltas is ", deltas)
+        return deltas
+
+    def update_beatplays(self, deltas):  # TODO refactor
+        if deltas[0] > 0:
+            print("in r1's update beatplays section")
+            while deltas[0] > 0:
+                print("new loop: add a new beatplay to r1, delta = ", deltas[0])
+                self.create_beatplay(self.rhythm1)
+                deltas[0] -= 1
+        elif deltas[0] < 0:
+            while deltas[0] < 0:
+                print("new loop: remove an existing beatplay to r1, delta = ", deltas[0])
+                self.delete_beatplay(self.rhythm1)
+                deltas[0] += 1
+        if deltas[1] > 0:
+            while deltas[1] > 0:
+                self.create_beatplay(self.rhythm2)
+                deltas[1] -= 1
+        elif deltas[1] < 0:
+            while deltas[1] < 0:
+                self.delete_beatplay(self.rhythm2)
+                deltas[0] += 1
+
+    def create_beatplay(self, rhythm):
+        beatplay = Beatplay()
+        beatplay.related_rhythm = rhythm
+        if self.beatplays_exist(rhythm):
+            beatplay.order = self.get_last_beatplay(rhythm).order + 1
+        else:
+            beatplay.order = 1
+        beatplay.save()
+        print("created a new beatplay for rhythm ", rhythm.rhythm_name)
+
+    def delete_beatplay(self, rhythm):
+        if self.beatplays_exist(rhythm):
+            last_beatplay = self.get_last_beatplay(rhythm)
+            print("in delete, about to delete beatplay with id = ", last_beatplay.id)
+            last_beatplay.delete()
+        else:
+            print("this rhythm has no beatplays")
+
+    def beatplays_exist(self, rhythm):
+        related_beatplays = Beatplay.objects.filter(related_rhythm=rhythm)
+        if related_beatplays.count() == 0:
+            return False
+        else:
+            return True
+
+    def get_last_beatplay(self, rhythm):
+        return Beatplay.objects.filter(related_rhythm=rhythm).order_by('-order')[0]
+
     def save_forms(self):
         self.save_valid_rhythm_forms()
         self.save_polyrhythm_form()
-
-    def create_beatplays(self):
-        rhythm_forms = [self.saved_rhythm1_form, self.saved_rhythm2_form]
-        for rhythm in rhythm_forms:
-            for beat in xrange(0, rhythm.timing):
-                beatplay= Beatplay()
-                beatplay.order = beat+1
-                beatplay.related_rhythm = rhythm
-                beatplay.save()
 
     def save_valid_rhythm_forms(self):
         if self.rhythm1_form.is_valid():
@@ -80,7 +155,7 @@ class RhythmsEdit(VariableAssignmentView):
     def save_polyrhythm_form(self):
         prepared_poly_form = self.attach_rhythms_to_polyrhythm()
         prepared_poly_form.save()
-        self.poly_id = prepared_poly_form.id
+        # self.poly_id = prepared_poly_form.id  # TODO delete
 
     def attach_rhythms_to_polyrhythm(self):
         pre_commit_poly_form = self.poly_form.save(commit=False)

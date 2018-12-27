@@ -14,9 +14,10 @@ class Sound(models.Model):
     # def beat(self):
     #     return self.no_of_sounds.count()
 
+
 class Rhythm(models.Model):
     rhythm_name = models.CharField(max_length=20)
-    timing = models.IntegerField(default=1)
+    timing = models.IntegerField(default=1)  # TODO Set this to positive only
 
     def __str__(self):
         return self.rhythm_name
